@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>markify · 文档秒变 Markdown</title>
+<meta name="description" content="markify —— Word / Excel / PPT / PDF / HTML / 图片 一键转成干净规范的 Markdown。全程本地转换，资料不出本机，离线可用。" />
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<meta property="og:title" content="markify · 文档秒变 Markdown" />
+<meta property="og:description" content="各类文档一键转 Markdown，本地转换、资料不出本机。" />
+<meta property="og:type" content="website" />
+<style>
+  /* 本地打包字体（OFL，自托管，不依赖任何 CDN）。latin 子集，中文走 PingFang SC。 */
+  @font-face{font-family:"JetBrains Mono";src:url("assets/fonts/jetbrains-mono.woff2") format("woff2");font-weight:100 800;font-style:normal;font-display:swap}
+  @font-face{font-family:"Hanken Grotesk";src:url("assets/fonts/hanken-grotesk.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+  :root{
+    --accent:#C2F24E;--accent-press:#B4E83B;--accent-ink:#0C1003;
+    --accent-glow:0 0 30px -6px rgba(194,242,78,.55);--accent-soft:rgba(194,242,78,.12);--accent-line:rgba(194,242,78,.4);
+    --canvas-1:#0a0b0e;--canvas-2:#070709;--glow-a:rgba(194,242,78,.14);--glow-b:rgba(80,190,255,.07);
+    --win:#0e1014;--panel:#14171d;--panel-2:#1a1e26;--raise:#20252e;
+    --ink:#edeef1;--muted:#8c8f9b;--faint:#565a64;
+    --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);--hi:rgba(255,255,255,.06);--hover:rgba(255,255,255,.05);
+    --soft:0 1px 2px rgba(0,0,0,.4),0 10px 30px -12px rgba(0,0,0,.6);
+    --ff-d:"JetBrains Mono","PingFang SC",ui-monospace,monospace;
+    --ff:"Hanken Grotesk",-apple-system,system-ui,"PingFang SC",sans-serif;
+    --mono:"JetBrains Mono","PingFang SC",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:80px}
+  body{
+    font-family:var(--ff);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
+    background:radial-gradient(60% 50% at 15% -8%,var(--glow-a),transparent 60%),
+      radial-gradient(55% 50% at 98% 8%,var(--glow-b),transparent 55%),
+      linear-gradient(160deg,var(--canvas-1),var(--canvas-2));
+    background-attachment:fixed;min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{width:min(1080px,92%);margin:0 auto}
+  .accent{color:var(--accent)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+
+  /* nav */
+  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(10,11,14,.6);border-bottom:1px solid var(--line)}
+  nav{display:flex;align-items:center;gap:14px;height:62px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:600;font-size:17px;letter-spacing:.01em}
+  .brand .logo{width:28px;height:28px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:var(--accent-glow)}
+  .brand s{color:var(--accent);text-decoration:none}
+  .nav-links{display:flex;gap:6px;margin-left:18px}
+  .nav-links a{padding:8px 13px;border-radius:9px;font-size:14px;color:var(--muted);transition:.15s}
+  .nav-links a:hover{color:var(--ink);background:var(--hover)}
+  .grow{flex:1}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--ff);font-weight:600;font-size:14px;padding:10px 20px;border-radius:11px;border:1px solid var(--line-2);background:transparent;color:var(--ink);cursor:pointer;transition:.18s;white-space:nowrap}
+  .btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:var(--accent-glow)}
+  .btn.primary:hover{background:var(--accent-press);color:var(--accent-ink)}
+  .btn.lg{padding:13px 26px;font-size:15px}
+  .nav-toggle{display:none;background:0;border:0;color:var(--ink);font-size:22px;cursor:pointer}
+
+  /* hero */
+  .hero{padding:84px 0 56px;text-align:center}
+  .hero h1{font-family:var(--ff-d);font-weight:800;font-size:clamp(40px,7vw,72px);line-height:1.04;letter-spacing:-.02em;margin:18px 0}
+  .hero h1 em{color:var(--accent);font-style:normal}
+  .hero p.lead{font-size:clamp(16px,2.4vw,19px);color:var(--muted);max-width:640px;margin:0 auto 30px}
+  .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:34px}
+  .chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);padding:6px 13px;border-radius:8px}
+
+  /* app window mock */
+  .mock{margin:60px auto 0;width:min(880px,100%);border-radius:14px;overflow:hidden;background:var(--win);border:1px solid var(--line-2);box-shadow:0 50px 100px -30px rgba(0,0,0,.8),0 0 0 1px rgba(0,0,0,.4)}
+  .mock .bar{height:42px;display:flex;align-items:center;gap:8px;padding:0 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .mock .bar i{width:11px;height:11px;border-radius:50%}
+  .tr{background:#ff5f57}.ty{background:#febc2e}.tg{background:#28c840}
+  .mock .bar b{font-family:var(--mono);font-weight:500;font-size:13px;margin-left:8px;color:var(--muted)}
+  .mock .body{display:grid;grid-template-columns:200px 1fr;min-height:300px}
+  .mock .side{border-right:1px solid var(--line);padding:18px 14px;background:var(--win)}
+  .mock .side .o{height:9px;border-radius:5px;background:var(--line-2);margin:11px 6px}
+  .mock .side .o.on{background:var(--accent);width:60%}
+  .mock .doc{padding:26px 30px;text-align:left;overflow:hidden}
+  .mock .doc h3{font-family:var(--ff-d);font-weight:700;font-size:21px;color:var(--ink)}
+  .mock .doc h3::after{content:"";display:block;width:42px;height:3px;background:var(--accent);border-radius:2px;margin:12px 0}
+  .mock .doc .ln{height:10px;border-radius:5px;background:var(--panel-2);margin:11px 0}
+  .mock .doc .ln.s{width:42%}.mock .doc .ln.m{width:78%}.mock .doc .ln.l{width:90%}
+  .mock .doc .code{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:13px;margin:16px 0;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .mock .doc .code .k{color:var(--accent)}
+
+  /* sections */
+  section{padding:62px 0}
+  .sec-head{text-align:center;max-width:620px;margin:0 auto 44px}
+  .sec-head h2{font-family:var(--ff-d);font-weight:700;font-size:clamp(26px,4vw,36px);letter-spacing:-.01em;margin:12px 0}
+  .sec-head p{color:var(--muted);font-size:16px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;transition:.18s}
+  .card:hover{border-color:var(--accent-line);transform:translateY(-3px);box-shadow:var(--soft)}
+  .card .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--accent-soft);margin-bottom:14px}
+  .card h3{font-size:17px;font-weight:700;margin-bottom:6px}
+  .card p{color:var(--muted);font-size:14px}
+
+  /* formats */
+  .fmts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+  .fmt{display:flex;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;min-width:200px}
+  .fmt .badge{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+  .b-docx{background:#3b6fc4}.b-pdf{background:#e0492f}.b-xlsx{background:#1f9952}.b-pptx{background:#dd5a1e}.b-html{background:#6b60d6}.b-img{background:#a07f43}
+  .fmt b{font-size:14.5px}.fmt span{display:block;font-size:12px;color:var(--muted)}
+
+  /* privacy banner */
+  .privacy{background:linear-gradient(135deg,var(--accent-soft),transparent);border:1px solid var(--accent-line);border-radius:18px;padding:42px;text-align:center}
+  .privacy h2{font-family:var(--ff-d);font-size:clamp(24px,4vw,32px);font-weight:700;margin-bottom:12px}
+  .privacy p{color:var(--muted);max-width:560px;margin:0 auto;font-size:16px}
+
+  /* pricing */
+  .price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+  .price{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 22px;text-align:center;transition:.18s;position:relative}
+  .price:hover{border-color:var(--accent-line);transform:translateY(-3px)}
+  .price.feat{border-color:var(--accent);box-shadow:var(--accent-glow)}
+  .price .tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;letter-spacing:.1em;background:var(--accent);color:var(--accent-ink);padding:3px 10px;border-radius:6px;font-weight:700}
+  .price .dur{font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.05em}
+  .price .num{font-family:var(--ff-d);font-size:34px;font-weight:800;margin:8px 0}
+  .price .num s{font-size:16px;font-weight:500;text-decoration:none;color:var(--muted)}
+  .price small{color:var(--faint);font-size:12px}
+  .buy-note{text-align:center;color:var(--muted);font-size:14px;margin-top:24px}
+  .buy-note .mono{font-family:var(--mono);color:var(--accent)}
+
+  /* faq */
+  .faq{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px 20px;transition:.15s}
+  details[open]{border-color:var(--accent-line)}
+  summary{list-style:none;cursor:pointer;padding:16px 0;font-weight:600;font-size:15.5px;display:flex;align-items:center;justify-content:space-between}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--accent);font-size:20px;font-family:var(--mono);transition:.2s}
+  details[open] summary::after{transform:rotate(45deg)}
+  details p{color:var(--muted);font-size:14.5px;padding:0 0 18px;line-height:1.7}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:36px 0;margin-top:30px}
+  .foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;color:var(--faint);font-size:13px}
+  .foot .brand{font-size:15px;color:var(--muted)}
+  .foot .sep{width:3px;height:3px;border-radius:50%;background:var(--faint)}
+
+  @media(max-width:720px){
+    .nav-links{display:none;position:absolute;top:62px;left:0;right:0;flex-direction:column;gap:0;background:var(--win);border-bottom:1px solid var(--line);padding:8px}
+    .nav-links.open{display:flex}
+    .nav-links a{padding:13px}
+    .nav-toggle{display:block}
+    nav .btn.primary{display:none}
+    .mock .body{grid-template-columns:1fr}.mock .side{display:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <nav class="wrap">
+    <a class="brand" href="#top"><span class="logo"><svg viewBox="0 0 26 18" width="18" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16V3l6 6.5L14 3v13"/><path d="M19.5 3v11M16 10.5l3.5 3.5 3.5-3.5"/></svg></span>markify<s>↓</s></a>
+    <button class="nav-toggle" id="navToggle" aria-label="菜单">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="#features">功能</a>
+      <a href="#formats">支持格式</a>
+      <a href="#pricing">价格</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="grow"></div>
+    <a class="btn primary" href="#pricing">前往购买</a>
+  </nav>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero wrap">
+    <div class="eyebrow">本地转换 · 离线可用 · 资料不出本机</div>
+    <h1>文档，秒变 <em>Markdown</em></h1>
+    <p class="lead">Word / Excel / PPT / PDF / HTML / 图片，一键转成干净规范的 Markdown。全程在你电脑本地完成，资料不上传、不出本机。</p>
+    <div class="cta">
+      <a class="btn primary lg" href="#pricing">前往闲鱼购买</a>
+      <a class="btn lg" href="#download">下载 macOS 版</a>
+    </div>
+    <div class="chips">
+      <span class="chip">WORD</span><span class="chip">PDF</span><span class="chip">EXCEL</span>
+      <span class="chip">PPT</span><span class="chip">HTML</span><span class="chip">IMAGE</span>
+    </div>
+
+    <div class="mock">
+      <div class="bar"><i class="tr"></i><i class="ty"></i><i class="tg"></i><b>markify↓</b></div>
+      <div class="body">
+        <div class="side"><div class="o on"></div><div class="o"></div><div class="o"></div><div class="o"></div><div class="o"></div></div>
+        <div class="doc">
+          <h3>季度运营报告</h3>
+          <div class="ln l"></div><div class="ln m"></div>
+          <div class="code"><span class="k">## </span>关键指标<br>| 区域 | 销售额 | 环比 |<br>| --- | --- | --- |</div>
+          <div class="ln m"></div><div class="ln s"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Features</div>
+      <h2>为「干净的 Markdown」而生</h2>
+      <p>不只是导出文本，而是把表格、标题、列表、代码、图片都规整成可读、可编辑、可迁移的 Markdown。</p>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="ic">🔒</div><h3>本地转换 · 隐私至上</h3><p>转换引擎跑在你电脑本地，文件不上传任何服务器，断网也能用。</p></div>
+      <div class="card"><div class="ic">📄</div><h3>全格式覆盖</h3><p>Word、Excel、PPT、PDF、HTML、图片，常见办公文档一网打尽。</p></div>
+      <div class="card"><div class="ic">🖼️</div><h3>图片完整保留</h3><p>文档里的图自动抽取，预览能看见、导出带图打包，不丢内容。</p></div>
+      <div class="card"><div class="ic">✍️</div><h3>实时预览 + 编辑</h3><p>所见即所得双栏，内置 Markdown 编辑器，转完直接改、即时刷新。</p></div>
+      <div class="card"><div class="ic">🧭</div><h3>大纲导航</h3><p>长文档自动生成目录，点击跳转、滚动高亮联动，定位不迷路。</p></div>
+      <div class="card"><div class="ic">⚡</div><h3>批量 · 多标签</h3><p>一次拖入多个文件，标签页管理，逐个查看导出。</p></div>
+      <div class="card"><div class="ic">🌗</div><h3>深浅色 · 中英文</h3><p>深色 / 浅色 / 跟随系统，界面中英文切换，字号可调。</p></div>
+      <div class="card"><div class="ic">📤</div><h3>一键导出</h3><p>原生保存对话框导出 .md，图片自动打包到同名目录，拖进 Obsidian 即用。</p></div>
+    </div>
+  </section>
+
+  <!-- FORMATS -->
+  <section id="formats" class="wrap">
+    <div class="sec-head"><div class="eyebrow">Formats</div><h2>支持的文档格式</h2></div>
+    <div class="fmts">
+      <div class="fmt"><span class="badge b-docx">DOCX</span><div><b>Word</b><span>.docx / .doc</span></div></div>
+      <div class="fmt"><span class="badge b-xlsx">XLSX</span><div><b>Excel</b><span>.xlsx / .xls / .csv</span></div></div>
+      <div class="fmt"><span class="badge b-pptx">PPTX</span><div><b>PowerPoint</b><span>.pptx / .ppt</span></div></div>
+      <div class="fmt"><span class="badge b-pdf">PDF</span><div><b>PDF</b><span>数字版（含文字层）</span></div></div>
+      <div class="fmt"><span class="badge b-html">HTML</span><div><b>网页</b><span>.html / .htm</span></div></div>
+      <div class="fmt"><span class="badge b-img">IMG</span><div><b>图片</b><span>.png / .jpg / .jpeg</span></div></div>
+    </div>
+  </section>
+
+  <!-- PRIVACY -->
+  <section class="wrap">
+    <div class="privacy">
+      <div class="eyebrow">Privacy</div>
+      <h2>资料不出本机</h2>
+      <p>markify 的转换引擎完全在本地运行——不调用云端、不上传文件、不留痕迹。敏感的合同、财报、内部资料，转成 Markdown 也只在你自己的电脑里。</p>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Pricing</div>
+      <h2>在闲鱼购买激活码</h2>
+      <p>一码一设备，可自助换机 3 次。按时长订阅，到期续费即可。</p>
+    </div>
+    <div class="price-grid">
+      <div class="price"><div class="dur">30 天</div><div class="num">体验</div><small>尝鲜短期使用</small></div>
+      <div class="price"><div class="dur">60 天</div><div class="num">进阶</div><small>项目周期适用</small></div>
+      <div class="price feat"><div class="tag">推荐</div><div class="dur">90 天</div><div class="num">常用</div><small>性价比之选</small></div>
+      <div class="price"><div class="dur">365 天</div><div class="num">年度</div><small>长期最划算</small></div>
+    </div>
+    <p class="buy-note">具体价格以 <a class="mono" href="#" data-xianyu>闲鱼店铺</a> 为准 · 购买后获得激活码，在 app 内「激活」输入即可。</p>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section id="download" class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Download</div>
+      <h2>下载与激活</h2>
+      <p>1. 在闲鱼购买并获取激活码 → 2. 下载 macOS 安装包 → 3. 打开 app，在「激活」中输入激活码。</p>
+    </div>
+    <div class="cta">
+      <a class="btn primary lg" href="#" data-download>下载 macOS 版（.dmg）</a>
+      <a class="btn lg" href="#pricing">还没有激活码？前往购买</a>
+    </div>
+    <p class="buy-note">macOS 优先支持，Windows 版规划中。下载链接将随发版更新。</p>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="wrap">
+    <div class="sec-head"><div class="eyebrow">FAQ</div><h2>常见问题</h2></div>
+    <div class="faq">
+      <details><summary>转换会上传我的文件吗？</summary><p>不会。markify 的转换引擎完全在本地运行，文件不会上传到任何服务器，断网也能正常使用。</p></details>
+      <details><summary>支持哪些格式？</summary><p>Word（.docx/.doc）、Excel（.xlsx/.xls/.csv）、PowerPoint（.pptx/.ppt）、数字版 PDF、HTML、以及常见图片格式。</p></details>
+      <details><summary>扫描件 / 图片型 PDF 能转吗？</summary><p>目前对没有文字层的扫描件 PDF 暂不支持（不会瞎编内容）。OCR 识别在后续版本规划中。</p></details>
+      <details><summary>怎么激活？</summary><p>在闲鱼购买后会获得激活码，打开 app 点「激活」输入即可。一码一设备，可自助换机 3 次。</p></details>
+      <details><summary>支持 Windows 吗？</summary><p>当前优先支持 macOS，Windows 版在规划中。</p></details>
+      <details><summary>导出的 Markdown 里有图片吗？</summary><p>有。导出时图片会自动打包到与 .md 同名的目录，拖进 Obsidian、Typora 等都能正常显示。</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span class="brand">markify<s class="accent">↓</s></span>
+    <span class="sep"></span><span>文档秒变 Markdown</span>
+    <span class="sep"></span><span>本地转换 · 资料不出本机</span>
+    <div class="grow"></div>
+    <span id="year"></span> · 闲鱼店铺出品
+  </div>
+</footer>
+
+<script>
+  // 移动端导航
+  const t=document.getElementById('navToggle'),l=document.getElementById('navLinks');
+  t.addEventListener('click',()=>l.classList.toggle('open'));
+  l.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>l.classList.remove('open')));
+  document.getElementById('year').textContent='© '+new Date().getFullYear();
+  // 占位链接：闲鱼店铺 / 下载地址，发版时填真实 URL
+  // document.querySelectorAll('[data-xianyu]').forEach(a=>a.href='https://闲鱼店铺URL');
+  // document.querySelectorAll('[data-download]').forEach(a=>a.href='https://下载地址.dmg');
+</script>
+</body>
+</html>

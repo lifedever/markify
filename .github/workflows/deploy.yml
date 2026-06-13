@@ -1,0 +1,32 @@
+name: Deploy to GitHub Pages
+
+# 纯静态站点：push 到 main 自动部署到 GitHub Pages（无构建步骤，直接上传仓库根目录）。
+# 安全：本 workflow 不含任何 run: 命令，也不使用 PR/issue 等不可信输入，无注入面。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - id: deployment
+        uses: actions/deploy-pages@v4
