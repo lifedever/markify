@@ -171,6 +171,8 @@
 
   /* footer */
   footer{border-top:1px solid var(--line);padding:36px 0;margin-top:30px}
+  .foot-link{color:var(--muted);text-decoration:none;transition:.16s}
+  .foot-link:hover{color:var(--accent-text)}
   .foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;color:var(--faint);font-size:13px}
   .foot .brand{font-size:15px;color:var(--muted)}
   .foot .sep{width:3px;height:3px;border-radius:50%;background:var(--faint)}
@@ -355,7 +357,8 @@
     <span class="sep"></span><span>文档秒变 Markdown</span>
     <span class="sep"></span><span>本地转换 · 资料不出本机</span>
     <div class="grow"></div>
-    <span id="year"></span> · 闲鱼店铺出品
+    <a href="terms.html" class="foot-link">使用条款 · 退款 · 隐私</a>
+    <span class="sep"></span><span id="year"></span> · 闲鱼店铺出品
   </div>
 </footer>
 
