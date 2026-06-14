@@ -206,10 +206,9 @@
     <h1>文档，秒变 <em>Markdown</em></h1>
     <p class="lead">Word / Excel / PPT / PDF / HTML / 图片，一键转成干净规范的 Markdown。全程在你电脑本地完成，资料不上传、不出本机。</p>
     <div class="cta">
-      <a class="btn primary lg" href="#pricing">前往闲鱼购买</a>
       <span class="dl-split" data-dl-split>
-        <a class="btn lg dl-main" href="#" download>下载 macOS 版</a>
-        <button class="btn lg dl-toggle" type="button" aria-label="选择平台" aria-expanded="false">▾</button>
+        <a class="btn primary lg dl-main" href="#" download>下载 macOS 版</a>
+        <button class="btn primary lg dl-toggle" type="button" aria-label="选择平台" aria-expanded="false">▾</button>
         <span class="dl-menu" hidden></span>
       </span>
     </div>
@@ -296,7 +295,7 @@
       </span>
       <a class="btn lg" href="#pricing">还没有激活码？前往购买</a>
     </div>
-    <p class="buy-note" id="dlNote">macOS 11+ · Apple 芯片 / Intel 均支持，Windows 版规划中。</p>
+    <p class="buy-note" id="dlNote">macOS 11+（Apple 芯片 / Intel）· Windows 10/11（x64）均支持。</p>
   </section>
 
   <!-- FAQ -->
@@ -307,7 +306,7 @@
       <details><summary>支持哪些格式？</summary><p>Word（.docx/.doc）、Excel（.xlsx/.xls/.csv）、PowerPoint（.pptx/.ppt）、数字版 PDF、HTML、以及常见图片格式。</p></details>
       <details><summary>扫描件 / 图片型 PDF 能转吗？</summary><p>目前对没有文字层的扫描件 PDF 暂不支持（不会瞎编内容）。OCR 识别在后续版本规划中。</p></details>
       <details><summary>怎么激活？</summary><p>在闲鱼购买后会获得激活码，打开 app 点「激活」输入即可。一码一设备，可自助换机 3 次。</p></details>
-      <details><summary>支持 Windows 吗？</summary><p>当前优先支持 macOS，Windows 版在规划中。</p></details>
+      <details><summary>支持 Windows 吗？</summary><p>支持。现已提供 Windows 10/11（x64）版本，与 macOS（Apple 芯片 / Intel）功能一致。</p></details>
       <details><summary>导出的 Markdown 里有图片吗？</summary><p>有。导出时图片会自动打包到与 .md 同名的目录，拖进 Obsidian、Typora 等都能正常显示。</p></details>
     </div>
   </section>
@@ -335,6 +334,7 @@
   (function(){
     const BASE='https://dl.lifedever.com/markify';
     const dmg=(v,a)=>BASE+'/markify-'+v+'-'+a+'.dmg';
+    const exe=(v)=>BASE+'/markify-'+v+'-x64-setup.exe';   // Windows NSIS 安装包
     function detectOS(){const u=navigator.userAgent;
       if(/Windows|Win64|Win32/i.test(u))return'win';
       if(/Mac/i.test(navigator.platform||'')||/Mac OS X/i.test(u))return'mac';
@@ -363,16 +363,16 @@
     (async function(){
       const v=await getVersion(),note=document.getElementById('dlNote'),splits=[...document.querySelectorAll('[data-dl-split]')];
       if(!v){splits.forEach(s=>{const m=s.querySelector('.dl-main');if(m){m.textContent='下载暂不可用';m.removeAttribute('href');m.classList.add('disabled');}const t=s.querySelector('.dl-toggle');if(t)t.remove();});return;}
-      const arm=dmg(v,'arm64'),intel=dmg(v,'x64'),sys=detectOS(),arch=sys==='mac'?macArch():(sys==='win'?'win':'arm64');
-      const defHref=arch==='x64'?intel:(arch==='win'?null:arm);
-      const defLabel=arch==='win'?'Windows 版即将推出':('下载 macOS · '+(arch==='x64'?'Intel':'Apple 芯片'));
+      const arm=dmg(v,'arm64'),intel=dmg(v,'x64'),win=exe(v),sys=detectOS(),arch=sys==='mac'?macArch():(sys==='win'?'win':'arm64');
+      const defHref=arch==='x64'?intel:(arch==='win'?win:arm);
+      const defLabel=arch==='win'?'下载 Windows 版':('下载 macOS · '+(arch==='x64'?'Intel':'Apple 芯片'));
       splits.forEach(split=>{
         const main=split.querySelector('.dl-main'),toggle=split.querySelector('.dl-toggle'),menu=split.querySelector('.dl-menu');
         if(main){if(defHref){main.href=defHref;main.setAttribute('download','');main.textContent=defLabel;}else{main.textContent=defLabel;main.removeAttribute('href');main.classList.add('disabled');}}
         if(menu){
           menu.append(menuRow('macOS · Apple 芯片',arm,arch==='arm64',false));
           menu.append(menuRow('macOS · Intel 芯片',intel,arch==='x64',false));
-          menu.append(menuRow('Windows',null,false,true));
+          menu.append(menuRow('Windows · x64',win,arch==='win',false));
           menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenus));
         }
         if(toggle&&menu)toggle.addEventListener('click',function(e){e.stopPropagation();const open=menu.hasAttribute('hidden');closeMenus();if(open){menu.removeAttribute('hidden');toggle.setAttribute('aria-expanded','true');}});
