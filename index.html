@@ -377,20 +377,24 @@
       finally{ if(labelEl&&txt!=null)labelEl.textContent=txt; busy=false; }
     }
     function closeMenus(){document.querySelectorAll('.dl-menu').forEach(m=>m.setAttribute('hidden',''));document.querySelectorAll('.dl-toggle').forEach(t=>t.setAttribute('aria-expanded','false'));}
-    function menuRow(label,plat,cur){
-      const a=document.createElement('a');a.href='#';a.setAttribute('role','menuitem');
-      const t=document.createElement('span');t.textContent=label;a.append(t);
-      if(cur){a.classList.add('cur');const g=document.createElement('span');g.className='tag';g.textContent='当前系统';a.append(g);}
-      a.addEventListener('click',e=>{e.preventDefault();closeMenus();go(plat,null);});
-      return a;
+    function menuRow(label,plat,cur,soon){
+      const el=document.createElement(soon?'span':'a');
+      if(soon){el.className='soon';}else{el.href='#';el.setAttribute('role','menuitem');}
+      const t=document.createElement('span');t.textContent=label;el.append(t);
+      if(cur){el.classList.add('cur');const g=document.createElement('span');g.className='tag';g.textContent='当前系统';el.append(g);}
+      else if(soon){const g=document.createElement('span');g.className='tag';g.textContent='暂不支持';el.append(g);}
+      if(!soon)el.addEventListener('click',e=>{e.preventDefault();closeMenus();go(plat,null);});
+      return el;
     }
     [...document.querySelectorAll('[data-dl-split]')].forEach(split=>{
       const main=split.querySelector('.dl-main'),toggle=split.querySelector('.dl-toggle'),menu=split.querySelector('.dl-menu');
-      if(main){ main.textContent=defLabel; main.removeAttribute('download');
-        main.addEventListener('click',e=>{e.preventDefault();go(sysPlat,main);}); }
+      const intelSys=(sysPlat==='intel');   // Intel Mac 暂无安装包
+      if(main){ main.removeAttribute('download');
+        if(intelSys){ main.textContent='macOS Intel 暂不支持'; main.classList.add('disabled'); }
+        else { main.textContent=defLabel; main.addEventListener('click',e=>{e.preventDefault();go(sysPlat,main);}); } }
       if(menu){
         menu.append(menuRow('macOS · Apple 芯片','arm',arch==='arm64'));
-        menu.append(menuRow('macOS · Intel 芯片','intel',arch==='x64'));
+        menu.append(menuRow('macOS · Intel 芯片','intel',arch==='x64',true));   // 置灰：暂不支持
         menu.append(menuRow('Windows · x64','win',arch==='win'));
       }
       if(toggle&&menu)toggle.addEventListener('click',function(e){e.stopPropagation();const open=menu.hasAttribute('hidden');closeMenus();if(open){menu.removeAttribute('hidden');toggle.setAttribute('aria-expanded','true');}});
