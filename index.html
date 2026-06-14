@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>markify · 文档秒变 Markdown</title>
 <meta name="description" content="markify —— Word / Excel / PPT / PDF / HTML / 图片 一键转成干净规范的 Markdown。全程本地转换，资料不出本机，离线可用。" />
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<link rel="icon" type="image/png" sizes="256x256" href="assets/favicon-256.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
 <meta property="og:title" content="markify · 文档秒变 Markdown" />
 <meta property="og:description" content="各类文档一键转 Markdown，本地转换、资料不出本机。" />
 <meta property="og:type" content="website" />
@@ -15,15 +17,32 @@
   @font-face{font-family:"Hanken Grotesk";src:url("assets/fonts/hanken-grotesk.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
   :root{
     --accent:#C2F24E;--accent-press:#B4E83B;--accent-ink:#0C1003;
-    --accent-glow:0 0 30px -6px rgba(194,242,78,.55);--accent-soft:rgba(194,242,78,.12);--accent-line:rgba(194,242,78,.4);
+    --accent-glow:0 0 30px -6px rgba(194,242,78,.55);--accent-soft:rgba(194,242,78,.12);--accent-line:rgba(194,242,78,.4);--accent-text:#C2F24E;
     --canvas-1:#0a0b0e;--canvas-2:#070709;--glow-a:rgba(194,242,78,.14);--glow-b:rgba(80,190,255,.07);
     --win:#0e1014;--panel:#14171d;--panel-2:#1a1e26;--raise:#20252e;
     --ink:#edeef1;--muted:#8c8f9b;--faint:#565a64;
     --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);--hi:rgba(255,255,255,.06);--hover:rgba(255,255,255,.05);
-    --soft:0 1px 2px rgba(0,0,0,.4),0 10px 30px -12px rgba(0,0,0,.6);
+    --soft:0 1px 2px rgba(0,0,0,.4),0 10px 30px -12px rgba(0,0,0,.6);--header-bg:rgba(10,11,14,.6);
     --ff-d:"JetBrains Mono","PingFang SC",ui-monospace,monospace;
     --ff:"Hanken Grotesk",-apple-system,system-ui,"PingFang SC",sans-serif;
     --mono:"JetBrains Mono","PingFang SC",ui-monospace,monospace;
+  }
+  /* 浅色模式：跟随系统自动切换。品牌绿(按钮/色块)保持荧光绿不变；
+     浅底上的绿色文字用 --accent-text 深一档以保证对比度可读 */
+  @media (prefers-color-scheme: light){
+    :root{
+      --accent-ink:#13200a;
+      --accent-text:#3c7d12;
+      --accent-glow:0 0 22px -8px rgba(150,205,55,.50);
+      --accent-soft:rgba(120,190,40,.13);--accent-line:rgba(120,180,40,.42);
+      --canvas-1:#f6f8f1;--canvas-2:#eef1e7;
+      --glow-a:rgba(175,222,95,.22);--glow-b:rgba(120,180,255,.10);
+      --win:#ffffff;--panel:#ffffff;--panel-2:#f1f3ec;--raise:#e7eadf;
+      --ink:#1a1d17;--muted:#5b6052;--faint:#9aa090;
+      --line:rgba(20,30,10,.10);--line-2:rgba(20,30,10,.16);--hi:rgba(0,0,0,.04);--hover:rgba(20,40,10,.05);
+      --soft:0 1px 2px rgba(0,0,0,.07),0 12px 30px -14px rgba(0,0,0,.22);
+      --header-bg:rgba(248,250,244,.72);
+    }
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth;scroll-padding-top:80px}
@@ -36,22 +55,23 @@
   }
   a{color:inherit;text-decoration:none}
   .wrap{width:min(1080px,92%);margin:0 auto}
-  .accent{color:var(--accent)}
-  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+  .accent{color:var(--accent-text)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-text)}
 
   /* nav */
-  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(10,11,14,.6);border-bottom:1px solid var(--line)}
+  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:var(--header-bg);border-bottom:1px solid var(--line)}
   nav{display:flex;align-items:center;gap:14px;height:62px}
   .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:600;font-size:17px;letter-spacing:.01em}
-  .brand .logo{width:28px;height:28px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:var(--accent-glow)}
-  .brand s{color:var(--accent);text-decoration:none}
+  .brand .logo{width:28px;height:28px;display:block}
+  .brand .logo img{width:100%;height:100%;display:block;border-radius:7px;box-shadow:var(--accent-glow)}
+  .brand s{color:var(--accent-text);text-decoration:none}
   .nav-links{display:flex;gap:6px;margin-left:18px}
   .nav-links a{padding:8px 13px;border-radius:9px;font-size:14px;color:var(--muted);transition:.15s}
   .nav-links a:hover{color:var(--ink);background:var(--hover)}
   .grow{flex:1}
   .btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--ff);font-weight:600;font-size:14px;padding:10px 20px;border-radius:11px;border:1px solid var(--line-2);background:transparent;color:var(--ink);cursor:pointer;transition:.18s;white-space:nowrap}
-  .btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:var(--accent-glow)}
+  .btn:hover{border-color:var(--accent-text);color:var(--accent-text);transform:translateY(-1px)}
+  .btn.primary{background:var(--accent);border-color:var(--accent-text);color:var(--accent-ink);box-shadow:var(--accent-glow)}
   .btn.primary:hover{background:var(--accent-press);color:var(--accent-ink)}
   .btn.lg{padding:13px 26px;font-size:15px}
   .nav-toggle{display:none;background:0;border:0;color:var(--ink);font-size:22px;cursor:pointer}
@@ -59,7 +79,7 @@
   /* hero */
   .hero{padding:84px 0 56px;text-align:center}
   .hero h1{font-family:var(--ff-d);font-weight:800;font-size:clamp(40px,7vw,72px);line-height:1.04;letter-spacing:-.02em;margin:18px 0}
-  .hero h1 em{color:var(--accent);font-style:normal}
+  .hero h1 em{color:var(--accent-text);font-style:normal}
   .hero p.lead{font-size:clamp(16px,2.4vw,19px);color:var(--muted);max-width:640px;margin:0 auto 30px}
   .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
   .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:34px}
@@ -81,7 +101,7 @@
   .mock .doc .ln{height:10px;border-radius:5px;background:var(--panel-2);margin:11px 0}
   .mock .doc .ln.s{width:42%}.mock .doc .ln.m{width:78%}.mock .doc .ln.l{width:90%}
   .mock .doc .code{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:13px;margin:16px 0;font-family:var(--mono);font-size:12px;color:var(--muted)}
-  .mock .doc .code .k{color:var(--accent)}
+  .mock .doc .code .k{color:var(--accent-text)}
 
   /* sections */
   section{padding:62px 0}
@@ -112,14 +132,14 @@
   .price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
   .price{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 22px;text-align:center;transition:.18s;position:relative}
   .price:hover{border-color:var(--accent-line);transform:translateY(-3px)}
-  .price.feat{border-color:var(--accent);box-shadow:var(--accent-glow)}
+  .price.feat{border-color:var(--accent-text);box-shadow:var(--accent-glow)}
   .price .tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;letter-spacing:.1em;background:var(--accent);color:var(--accent-ink);padding:3px 10px;border-radius:6px;font-weight:700}
   .price .dur{font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.05em}
   .price .num{font-family:var(--ff-d);font-size:34px;font-weight:800;margin:8px 0}
   .price .num s{font-size:16px;font-weight:500;text-decoration:none;color:var(--muted)}
   .price small{color:var(--faint);font-size:12px}
   .buy-note{text-align:center;color:var(--muted);font-size:14px;margin-top:24px}
-  .buy-note .mono{font-family:var(--mono);color:var(--accent)}
+  .buy-note .mono{font-family:var(--mono);color:var(--accent-text)}
 
   /* faq */
   .faq{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
@@ -127,7 +147,7 @@
   details[open]{border-color:var(--accent-line)}
   summary{list-style:none;cursor:pointer;padding:16px 0;font-weight:600;font-size:15.5px;display:flex;align-items:center;justify-content:space-between}
   summary::-webkit-details-marker{display:none}
-  summary::after{content:"+";color:var(--accent);font-size:20px;font-family:var(--mono);transition:.2s}
+  summary::after{content:"+";color:var(--accent-text);font-size:20px;font-family:var(--mono);transition:.2s}
   details[open] summary::after{transform:rotate(45deg)}
   details p{color:var(--muted);font-size:14.5px;padding:0 0 18px;line-height:1.7}
 
@@ -145,12 +165,20 @@
     nav .btn.primary{display:none}
     .mock .body{grid-template-columns:1fr}.mock .side{display:none}
   }
+  /* 截图宣传图 + 下载变体 */
+  .shot{display:block;margin:54px auto 0;width:min(940px,100%);border-radius:16px;overflow:hidden;box-shadow:0 40px 90px -34px rgba(0,0,0,.5),0 0 0 1px var(--line)}
+  .shot img{display:block;width:100%;height:auto}
+  .dl-alts{margin-top:16px;font-size:13.5px;color:var(--muted)}
+  .dl-alts a{color:var(--accent-text);border-bottom:1px solid transparent;transition:.15s}
+  .dl-alts a:hover{border-bottom-color:var(--accent-text)}
+  .dl-alts .muted{color:var(--faint)}
+  .btn.disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
 </style>
 </head>
 <body>
 <header>
   <nav class="wrap">
-    <a class="brand" href="#top"><span class="logo"><svg viewBox="0 0 26 18" width="18" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16V3l6 6.5L14 3v13"/><path d="M19.5 3v11M16 10.5l3.5 3.5 3.5-3.5"/></svg></span>markify<s>↓</s></a>
+    <a class="brand" href="#top"><span class="logo"><img src="assets/favicon-256.png" alt="markify" width="28" height="28" /></span>markify<s>↓</s></a>
     <button class="nav-toggle" id="navToggle" aria-label="菜单">☰</button>
     <div class="nav-links" id="navLinks">
       <a href="#features">功能</a>
@@ -178,18 +206,10 @@
       <span class="chip">PPT</span><span class="chip">HTML</span><span class="chip">IMAGE</span>
     </div>
 
-    <div class="mock">
-      <div class="bar"><i class="tr"></i><i class="ty"></i><i class="tg"></i><b>markify↓</b></div>
-      <div class="body">
-        <div class="side"><div class="o on"></div><div class="o"></div><div class="o"></div><div class="o"></div><div class="o"></div></div>
-        <div class="doc">
-          <h3>季度运营报告</h3>
-          <div class="ln l"></div><div class="ln m"></div>
-          <div class="code"><span class="k">## </span>关键指标<br>| 区域 | 销售额 | 环比 |<br>| --- | --- | --- |</div>
-          <div class="ln m"></div><div class="ln s"></div>
-        </div>
-      </div>
-    </div>
+    <picture class="shot">
+      <source srcset="assets/app-screenshot.webp" type="image/webp" />
+      <img src="assets/app-screenshot.jpg" alt="markify 把文档转成干净的 Markdown：双栏预览、大纲导航、表格还原" loading="lazy" width="1800" height="1286" />
+    </picture>
   </section>
 
   <!-- FEATURES -->
@@ -257,10 +277,11 @@
       <p>1. 在闲鱼购买并获取激活码 → 2. 下载 macOS 安装包 → 3. 打开 app，在「激活」中输入激活码。</p>
     </div>
     <div class="cta">
-      <a class="btn primary lg" href="#" data-download>下载 macOS 版（.dmg）</a>
+      <a class="btn primary lg" href="#" data-download download>下载 macOS 版</a>
       <a class="btn lg" href="#pricing">还没有激活码？前往购买</a>
     </div>
-    <p class="buy-note">macOS 优先支持，Windows 版规划中。下载链接将随发版更新。</p>
+    <div class="dl-alts" id="dlAlts"></div>
+    <p class="buy-note" id="dlNote">macOS 11+ · Apple 芯片 / Intel 均支持，Windows 版规划中。</p>
   </section>
 
   <!-- FAQ -->
@@ -293,9 +314,51 @@
   t.addEventListener('click',()=>l.classList.toggle('open'));
   l.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>l.classList.remove('open')));
   document.getElementById('year').textContent='© '+new Date().getFullYear();
-  // 占位链接：闲鱼店铺 / 下载地址，发版时填真实 URL
-  // document.querySelectorAll('[data-xianyu]').forEach(a=>a.href='https://闲鱼店铺URL');
-  // document.querySelectorAll('[data-download]').forEach(a=>a.href='https://下载地址.dmg');
+  // 占位链接：闲鱼店铺 URL 待填（document.querySelectorAll('[data-xianyu]').forEach(a=>a.href='...')）
+
+  // ── 下载：版本号从 latest.json 动态取（不硬编码），自动判断平台/架构 ──
+  (function(){
+    const BASE='https://dl.lifedever.com/markify';
+    const dmg=(v,a)=>BASE+'/markify-'+v+'-'+a+'.dmg';
+    function detectOS(){const u=navigator.userAgent;
+      if(/Windows|Win64|Win32/i.test(u))return'win';
+      if(/Mac/i.test(navigator.platform||'')||/Mac OS X/i.test(u))return'mac';
+      return'other';}
+    // 浏览器对 Intel/ARM Mac 都报 MacIntel；用 WebGL 渲染器名兜底（Apple GPU=arm64），测不出默认 arm64
+    function macArch(){try{
+      const c=document.createElement('canvas'),gl=c.getContext('webgl')||c.getContext('experimental-webgl');
+      if(gl){const d=gl.getExtension('WEBGL_debug_renderer_info');
+        const r=d?String(gl.getParameter(d.UNMASKED_RENDERER_WEBGL)):'';
+        if(/Apple/i.test(r))return'arm64';
+        if(/Intel|AMD|Radeon|NVIDIA/i.test(r))return'x64';}
+    }catch(e){}return'arm64';}
+    async function getVersion(){try{
+      const r=await fetch(BASE+'/latest.json',{cache:'no-store'});
+      if(r.ok)return (await r.json()).version;
+    }catch(e){}return null;}
+    function mkLink(href,text){const a=document.createElement('a');a.href=href;a.textContent=text;a.setAttribute('download','');return a;}
+    function fillAlts(el,lead,arm,intel,showWin){
+      el.textContent=lead;
+      el.append(mkLink(arm,'Apple 芯片'),document.createTextNode(' · '),mkLink(intel,'Intel 芯片'));
+      if(showWin){const s=document.createElement('span');s.className='muted';s.textContent='Windows 即将推出';el.append(document.createTextNode(' · '),s);}
+    }
+    (async function(){
+      const btn=document.querySelector('[data-download]'),alts=document.getElementById('dlAlts'),note=document.getElementById('dlNote');
+      const v=await getVersion();
+      if(!v){if(btn){btn.textContent='下载暂不可用';btn.removeAttribute('href');btn.classList.add('disabled');}return;}
+      const arm=dmg(v,'arm64'),intel=dmg(v,'x64'),sys=detectOS();
+      if(sys==='win'){
+        if(btn){btn.textContent='Windows 版即将推出';btn.removeAttribute('href');btn.classList.add('disabled');}
+        if(alts)fillAlts(alts,'想先用 Mac 版？',arm,intel,false);
+      }else{
+        const a=sys==='mac'?macArch():'arm64';
+        const main=a==='x64'?intel:arm, label=a==='x64'?'Intel 芯片':'Apple 芯片';
+        if(btn){btn.href=main;btn.setAttribute('download','');btn.textContent='下载 macOS 版 · '+label;}
+        if(alts)fillAlts(alts,'选错了？',arm,intel,true);
+      }
+      if(note)note.textContent='macOS 11+ · 当前版本 v'+v;
+    })();
+  })();
 </script>
 </body>
 </html>
