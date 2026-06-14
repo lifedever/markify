@@ -140,6 +140,12 @@
   .price .num s{font-size:16px;font-weight:500;text-decoration:none;color:var(--muted)}
   .price small{color:var(--faint);font-size:12px}
   .buy-note{text-align:center;color:var(--muted);font-size:14px;margin-top:24px}
+  .buybox-web{max-width:540px;margin:0 auto}
+  .buyrow-web{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--accent-line);border-radius:14px;padding:14px 18px;margin-bottom:18px;box-shadow:var(--soft)}
+  .buylab-web{font-size:13px;color:var(--muted);white-space:nowrap}
+  .buyrow-web code{flex:1;font-family:var(--mono);font-size:14px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+  .buycopy-web{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-size:13px;font-weight:700;padding:8px 18px;border-radius:9px;cursor:pointer;white-space:nowrap;font-family:var(--ff)}
+  .buybox-web .btn.primary.lg{width:100%}
   .buy-note .mono{font-family:var(--mono);color:var(--accent-text)}
 
   /* faq */
@@ -271,15 +277,17 @@
     <div class="sec-head">
       <div class="eyebrow">Pricing</div>
       <h2>在闲鱼购买激活码</h2>
-      <p>一码一设备，可自助换机 3 次。按时长订阅，到期续费即可。</p>
+      <p>一码一设备，可自助换机 3 次。购买后获得激活码，在 app 内「激活」输入即可。</p>
     </div>
-    <div class="price-grid">
-      <div class="price"><div class="dur">30 天</div><div class="num">体验</div><small>尝鲜短期使用</small></div>
-      <div class="price"><div class="dur">60 天</div><div class="num">进阶</div><small>项目周期适用</small></div>
-      <div class="price feat"><div class="tag">推荐</div><div class="dur">90 天</div><div class="num">常用</div><small>性价比之选</small></div>
-      <div class="price"><div class="dur">365 天</div><div class="num">年度</div><small>长期最划算</small></div>
+    <div class="buybox-web">
+      <div class="buyrow-web" id="wxTokenRow" hidden>
+        <span class="buylab-web">闲鱼口令</span>
+        <code id="wxToken"></code>
+        <button class="buycopy-web" id="wxCopy" type="button">复制</button>
+      </div>
+      <a class="btn primary lg" id="wxLink" target="_blank" rel="noopener" hidden>打开闲鱼店铺购买 ›</a>
+      <p class="buy-note" id="wxNote">购买信息加载中…</p>
     </div>
-    <p class="buy-note">具体价格以 <a class="mono" href="#" data-xianyu>闲鱼店铺</a> 为准 · 购买后获得激活码，在 app 内「激活」输入即可。</p>
   </section>
 
   <!-- DOWNLOAD -->
@@ -330,6 +338,18 @@
   t.addEventListener('click',()=>l.classList.toggle('open'));
   l.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>l.classList.remove('open')));
   document.getElementById('year').textContent='© '+new Date().getFullYear();
+  // 购买信息：从 license-server 自动拉「闲鱼链接 + 口令」展示（后台一改，官网即变）
+  (function(){
+    fetch('https://license-server.lifedever.com/api/v1/purchase/markify',{cache:'no-store'})
+      .then(r=>r.json()).then(p=>{
+        let any=false;
+        if(p&&p.buy_token){ const t=document.getElementById('wxToken'); if(t)t.textContent=p.buy_token; const r=document.getElementById('wxTokenRow'); if(r)r.hidden=false; any=true; }
+        if(p&&p.buy_url){ const a=document.getElementById('wxLink'); if(a){ a.href=p.buy_url; a.hidden=false; } any=true; }
+        const n=document.getElementById('wxNote'); if(n)n.textContent = any ? '复制口令打开闲鱼 App，或点上方按钮直达店铺购买。' : '请在闲鱼 App 搜索店铺购买。';
+      }).catch(()=>{ const n=document.getElementById('wxNote'); if(n)n.textContent='请在闲鱼 App 搜索店铺购买。'; });
+    const c=document.getElementById('wxCopy');
+    if(c)c.addEventListener('click',()=>{ const t=(document.getElementById('wxToken').textContent)||''; if(t)navigator.clipboard.writeText(t).then(()=>{ c.textContent='已复制'; setTimeout(()=>c.textContent='复制',1500); }); });
+  })();
   // 占位链接：闲鱼店铺 URL 待填（document.querySelectorAll('[data-xianyu]').forEach(a=>a.href='...')）
 
   // ── 下载：每次点击都实时拉 latest.json 取最新版本（no-store 绕缓存），再程序化触发下载。
