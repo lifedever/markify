@@ -84,6 +84,7 @@
   .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
   .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:34px}
   .chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);padding:6px 13px;border-radius:8px}
+  .ver-line{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:16px;min-height:1em}
 
   /* app window mock */
   .mock{margin:60px auto 0;width:min(880px,100%);border-radius:14px;overflow:hidden;background:var(--win);border:1px solid var(--line-2);box-shadow:0 50px 100px -30px rgba(0,0,0,.8),0 0 0 1px rgba(0,0,0,.4)}
@@ -212,6 +213,7 @@
         <span class="dl-menu" hidden></span>
       </span>
     </div>
+    <p class="ver-line" data-latest-ver></p>
     <div class="chips">
       <span class="chip">WORD</span><span class="chip">PDF</span><span class="chip">EXCEL</span>
       <span class="chip">PPT</span><span class="chip">HTML</span><span class="chip">IMAGE</span>
@@ -394,6 +396,12 @@
       if(toggle&&menu)toggle.addEventListener('click',function(e){e.stopPropagation();const open=menu.hasAttribute('hidden');closeMenus();if(open){menu.removeAttribute('hidden');toggle.setAttribute('aria-expanded','true');}});
     });
     document.addEventListener('click',closeMenus);
+    // 展示最新版本号（仅展示；下载仍以点击时实时版本为准）
+    latestVersion().then(v=>{
+      document.querySelectorAll('[data-latest-ver]').forEach(el=>el.textContent='当前最新版本 v'+v);
+      const note=document.getElementById('dlNote');
+      if(note)note.textContent='最新版本 v'+v+' · macOS 11+（Apple 芯片 / Intel）· Windows 10/11（x64）';
+    }).catch(()=>{});
   })();
 </script>
 </body>
