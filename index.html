@@ -168,10 +168,18 @@
   /* 截图宣传图 + 下载变体 */
   .shot{display:block;margin:54px auto 0;width:min(940px,100%);border-radius:16px;overflow:hidden;box-shadow:0 40px 90px -34px rgba(0,0,0,.5),0 0 0 1px var(--line)}
   .shot img{display:block;width:100%;height:auto}
-  .dl-alts{margin-top:16px;font-size:13.5px;color:var(--muted)}
-  .dl-alts a{color:var(--accent-text);border-bottom:1px solid transparent;transition:.15s}
-  .dl-alts a:hover{border-bottom-color:var(--accent-text)}
-  .dl-alts .muted{color:var(--faint)}
+  .dl-split{position:relative;display:inline-flex;vertical-align:top}
+  .dl-split .dl-main{border-top-right-radius:0;border-bottom-right-radius:0}
+  .dl-split .dl-toggle{border-top-left-radius:0;border-bottom-left-radius:0;border-left:1px solid rgba(0,0,0,.16);padding:13px 12px;font-size:11px}
+  .dl-menu{position:absolute;top:calc(100% + 8px);left:0;min-width:240px;background:var(--panel);border:1px solid var(--line-2);border-radius:12px;box-shadow:var(--soft);padding:6px;z-index:60;display:flex;flex-direction:column;gap:2px;text-align:left}
+  .dl-menu[hidden]{display:none}
+  .dl-menu a,.dl-menu .soon{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 12px;border-radius:8px;font-size:14px;color:var(--ink)}
+  .dl-menu a{cursor:pointer}
+  .dl-menu a:hover{background:var(--hover)}
+  .dl-menu .cur{color:var(--accent-text);font-weight:600}
+  .dl-menu .soon{color:var(--faint)}
+  .dl-menu .tag{font-size:11px;font-family:var(--mono);color:var(--accent-text)}
+  .dl-menu .soon .tag{color:var(--faint)}
   .btn.disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
 </style>
 </head>
@@ -199,7 +207,11 @@
     <p class="lead">Word / Excel / PPT / PDF / HTML / 图片，一键转成干净规范的 Markdown。全程在你电脑本地完成，资料不上传、不出本机。</p>
     <div class="cta">
       <a class="btn primary lg" href="#pricing">前往闲鱼购买</a>
-      <a class="btn lg" href="#download">下载 macOS 版</a>
+      <span class="dl-split" data-dl-split>
+        <a class="btn lg dl-main" href="#" download>下载 macOS 版</a>
+        <button class="btn lg dl-toggle" type="button" aria-label="选择平台" aria-expanded="false">▾</button>
+        <span class="dl-menu" hidden></span>
+      </span>
     </div>
     <div class="chips">
       <span class="chip">WORD</span><span class="chip">PDF</span><span class="chip">EXCEL</span>
@@ -277,10 +289,13 @@
       <p>1. 在闲鱼购买并获取激活码 → 2. 下载 macOS 安装包 → 3. 打开 app，在「激活」中输入激活码。</p>
     </div>
     <div class="cta">
-      <a class="btn primary lg" href="#" data-download download>下载 macOS 版</a>
+      <span class="dl-split" data-dl-split>
+        <a class="btn primary lg dl-main" href="#" download>下载 macOS 版</a>
+        <button class="btn primary lg dl-toggle" type="button" aria-label="选择平台" aria-expanded="false">▾</button>
+        <span class="dl-menu" hidden></span>
+      </span>
       <a class="btn lg" href="#pricing">还没有激活码？前往购买</a>
     </div>
-    <div class="dl-alts" id="dlAlts"></div>
     <p class="buy-note" id="dlNote">macOS 11+ · Apple 芯片 / Intel 均支持，Windows 版规划中。</p>
   </section>
 
@@ -316,7 +331,7 @@
   document.getElementById('year').textContent='© '+new Date().getFullYear();
   // 占位链接：闲鱼店铺 URL 待填（document.querySelectorAll('[data-xianyu]').forEach(a=>a.href='...')）
 
-  // ── 下载：版本号从 latest.json 动态取（不硬编码），自动判断平台/架构 ──
+  // ── 下载：版本从 latest.json 动态取（不硬编码）；分体按钮直接下载 + 全平台下拉（默认当前系统）──
   (function(){
     const BASE='https://dl.lifedever.com/markify';
     const dmg=(v,a)=>BASE+'/markify-'+v+'-'+a+'.dmg';
@@ -336,26 +351,33 @@
       const r=await fetch(BASE+'/latest.json',{cache:'no-store'});
       if(r.ok)return (await r.json()).version;
     }catch(e){}return null;}
-    function mkLink(href,text){const a=document.createElement('a');a.href=href;a.textContent=text;a.setAttribute('download','');return a;}
-    function fillAlts(el,lead,arm,intel,showWin){
-      el.textContent=lead;
-      el.append(mkLink(arm,'Apple 芯片'),document.createTextNode(' · '),mkLink(intel,'Intel 芯片'));
-      if(showWin){const s=document.createElement('span');s.className='muted';s.textContent='Windows 即将推出';el.append(document.createTextNode(' · '),s);}
+    function menuRow(label,href,cur,soon){
+      const el=document.createElement(href?'a':'span');
+      if(href){el.href=href;el.setAttribute('download','');el.setAttribute('role','menuitem');}else el.className='soon';
+      const t=document.createElement('span');t.textContent=label;el.append(t);
+      if(cur){el.classList.add('cur');const g=document.createElement('span');g.className='tag';g.textContent='当前系统';el.append(g);}
+      else if(soon){const g=document.createElement('span');g.className='tag';g.textContent='即将推出';el.append(g);}
+      return el;
     }
+    function closeMenus(){document.querySelectorAll('.dl-menu').forEach(m=>m.setAttribute('hidden',''));document.querySelectorAll('.dl-toggle').forEach(t=>t.setAttribute('aria-expanded','false'));}
     (async function(){
-      const btn=document.querySelector('[data-download]'),alts=document.getElementById('dlAlts'),note=document.getElementById('dlNote');
-      const v=await getVersion();
-      if(!v){if(btn){btn.textContent='下载暂不可用';btn.removeAttribute('href');btn.classList.add('disabled');}return;}
-      const arm=dmg(v,'arm64'),intel=dmg(v,'x64'),sys=detectOS();
-      if(sys==='win'){
-        if(btn){btn.textContent='Windows 版即将推出';btn.removeAttribute('href');btn.classList.add('disabled');}
-        if(alts)fillAlts(alts,'想先用 Mac 版？',arm,intel,false);
-      }else{
-        const a=sys==='mac'?macArch():'arm64';
-        const main=a==='x64'?intel:arm, label=a==='x64'?'Intel 芯片':'Apple 芯片';
-        if(btn){btn.href=main;btn.setAttribute('download','');btn.textContent='下载 macOS 版 · '+label;}
-        if(alts)fillAlts(alts,'选错了？',arm,intel,true);
-      }
+      const v=await getVersion(),note=document.getElementById('dlNote'),splits=[...document.querySelectorAll('[data-dl-split]')];
+      if(!v){splits.forEach(s=>{const m=s.querySelector('.dl-main');if(m){m.textContent='下载暂不可用';m.removeAttribute('href');m.classList.add('disabled');}const t=s.querySelector('.dl-toggle');if(t)t.remove();});return;}
+      const arm=dmg(v,'arm64'),intel=dmg(v,'x64'),sys=detectOS(),arch=sys==='mac'?macArch():(sys==='win'?'win':'arm64');
+      const defHref=arch==='x64'?intel:(arch==='win'?null:arm);
+      const defLabel=arch==='win'?'Windows 版即将推出':('下载 macOS · '+(arch==='x64'?'Intel':'Apple 芯片'));
+      splits.forEach(split=>{
+        const main=split.querySelector('.dl-main'),toggle=split.querySelector('.dl-toggle'),menu=split.querySelector('.dl-menu');
+        if(main){if(defHref){main.href=defHref;main.setAttribute('download','');main.textContent=defLabel;}else{main.textContent=defLabel;main.removeAttribute('href');main.classList.add('disabled');}}
+        if(menu){
+          menu.append(menuRow('macOS · Apple 芯片',arm,arch==='arm64',false));
+          menu.append(menuRow('macOS · Intel 芯片',intel,arch==='x64',false));
+          menu.append(menuRow('Windows',null,false,true));
+          menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenus));
+        }
+        if(toggle&&menu)toggle.addEventListener('click',function(e){e.stopPropagation();const open=menu.hasAttribute('hidden');closeMenus();if(open){menu.removeAttribute('hidden');toggle.setAttribute('aria-expanded','true');}});
+      });
+      document.addEventListener('click',closeMenus);
       if(note)note.textContent='macOS 11+ · 当前版本 v'+v;
     })();
   })();
