@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Markify · 文档秒变 Markdown</title>
-<meta name="description" content="Markify —— Word / Excel / PPT / PDF / HTML / 图片 一键转成干净规范的 Markdown。全程本地转换，资料不出本机，离线可用。" />
+<meta name="description" content="Markify —— Word / Excel / PPT / PDF / HTML / 图片 / 纯文本 一键转成干净规范的 Markdown。全程本地转换，资料不出本机，离线可用。" />
 <link rel="icon" type="image/png" sizes="256x256" href="assets/favicon-256.png" />
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
@@ -121,7 +121,7 @@
   .fmts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
   .fmt{display:flex;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;min-width:200px}
   .fmt .badge{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
-  .b-docx{background:#3b6fc4}.b-pdf{background:#e0492f}.b-xlsx{background:#1f9952}.b-pptx{background:#dd5a1e}.b-html{background:#6b60d6}.b-img{background:#a07f43}
+  .b-docx{background:#3b6fc4}.b-pdf{background:#e0492f}.b-xlsx{background:#1f9952}.b-pptx{background:#dd5a1e}.b-html{background:#6b60d6}.b-img{background:#a07f43}.b-txt{background:#6d7680}
   .fmt b{font-size:14.5px}.fmt span{display:block;font-size:12px;color:var(--muted)}
 
   /* privacy banner */
@@ -226,7 +226,7 @@
   <section class="hero wrap">
     <div class="eyebrow">本地转换 · 离线可用 · 资料不出本机</div>
     <h1>文档，秒变 <em>Markdown</em></h1>
-    <p class="lead">Word / Excel / PPT / PDF / HTML / 图片，一键转成干净规范的 Markdown。全程在你电脑本地完成，资料不上传、不出本机。</p>
+    <p class="lead">Word / Excel / PPT / PDF / HTML / 图片 / 纯文本，一键转成干净规范的 Markdown。全程在你电脑本地完成，资料不上传、不出本机。</p>
     <div class="cta">
       <span class="dl-split" data-dl-split>
         <a class="btn primary lg dl-main" href="#" role="button">下载 macOS 版</a>
@@ -275,6 +275,7 @@
       <div class="fmt"><span class="badge b-pdf">PDF</span><div><b>PDF</b><span>数字版（含文字层）</span></div></div>
       <div class="fmt"><span class="badge b-html">HTML</span><div><b>网页</b><span>.html / .htm</span></div></div>
       <div class="fmt"><span class="badge b-img">IMG</span><div><b>图片</b><span>.png / .jpg / .jpeg</span></div></div>
+      <div class="fmt"><span class="badge b-txt">TXT</span><div><b>纯文本</b><span>.txt / .md / .json / .log（自动识别编码，可修复排版）</span></div></div>
     </div>
   </section>
 
@@ -343,7 +344,7 @@
     <div class="sec-head"><div class="eyebrow">FAQ</div><h2>常见问题</h2></div>
     <div class="faq">
       <details><summary>转换会上传我的文件吗？</summary><p>不会。Markify 的转换引擎完全在本地运行，文件不会上传到任何服务器，断网也能正常使用。</p></details>
-      <details><summary>支持哪些格式？</summary><p>Word（.docx/.doc）、Excel（.xlsx/.xls/.csv）、PowerPoint（.pptx/.ppt）、数字版 PDF、HTML、以及常见图片格式。</p></details>
+      <details><summary>支持哪些格式？</summary><p>Word（.docx/.doc）、Excel（.xlsx/.xls/.csv）、PowerPoint（.pptx/.ppt）、数字版 PDF、HTML、常见图片格式、以及纯文本（.txt/.md/.json/.log，自动识别 GBK 等编码，并可自动修复写坏的 Markdown 排版）。</p></details>
       <details><summary>扫描件 / 图片型 PDF 能转吗？</summary><p>目前对没有文字层的扫描件 PDF 暂不支持（不会瞎编内容）。OCR 识别在后续版本规划中。</p></details>
       <details><summary>怎么激活？</summary><p>在闲鱼购买后会获得激活码，打开 app 点「激活」输入即可。一码一设备，可自助换机 3 次。</p></details>
       <details><summary>支持 Windows 吗？</summary><p>支持。现已提供 Windows 10/11（x64）版本，与 macOS（Apple 芯片 / Intel）功能一致。</p></details>
